@@ -1,25 +1,15 @@
-
-
 from __future__ import print_function
 import numpy as np
 #import healpy as hp 
-
 from pixell import enmap,curvedsky,reproject
-
 import numpy as np
 import os,sys
-
 from scipy.interpolate import interp1d
 import scipy.constants as constants
 
-
-
-
-
 def _deltaTOverTcmbToJyPerSr(freq_GHz,T0 = 2.7255):
     """
-    @brief the function name is self-eplanatory
-    @return the converstion factor
+    función que pasa desde deltaT/T_cmb a Jy/sr
     """
     kB = 1.380658e-16
     h = 6.6260755e-27
@@ -36,9 +26,6 @@ def greyBody(freq_GHz,beta=1.4,T_d=13.6):# Gispert:1.4, 13.6  https://arxiv.org/
         mu_0=freq**beta*2*constants.h*freq**3/(constants.c**2)/(expT-1)
         return mu_0
 
-
-
-
 def galaticDust_SED(freq_GHz,beta_d=1.48,t_d=19.6,freq_GHz_0=150,**kwargs):
     if freq_GHz is None:
         freq_GHz = freq_GHz_0
@@ -47,7 +34,6 @@ def galaticDust_SED(freq_GHz,beta_d=1.48,t_d=19.6,freq_GHz_0=150,**kwargs):
 
     else:
         return greyBody(freq_GHz, beta=beta_d,T_d=t_d)*2.7255e6
-
 
 def galaticDust_Cl(mapType1,mapType2,a_d_t=3e3,a_d_e=205.,a_d_b=120.,n_d_t=-2.7,n_d_e=-2.43,n_d_b=-2.48,scalePol=1.e-2,chi_d=.3,lmax=8000,**kwargs):
     ls = np.arange(lmax)+1e-3
@@ -66,8 +52,6 @@ def galaticDust_Cl(mapType1,mapType2,a_d_t=3e3,a_d_e=205.,a_d_b=120.,n_d_t=-2.7,
     # cls_tmp[:5] = cls_tmp[5]
     cls_tmp[:2]=0
     return cls_tmp
-
-
 
 def synchrotron_SED(freq_GHz,beta_sync=-3.1,freq_GHz_0=30,**kwargs):
     if freq_GHz is None:
@@ -94,25 +78,17 @@ def synchrotron_Cl(mapType1,mapType2,a_s_t=3.e5,a_s_e=1000.,a_s_b=500.,n_s_t=-2.
     cls_tmp[:2]=0
     return cls_tmp
 
-
 def syncxdust_Cls(mapType1,mapType2,correlationCoef=-.1,synchrotron_fnc=synchrotron_Cl,galaticDust_fnc=galaticDust_Cl,lmax=8000,**kwargs):
     cl11 = np.abs(synchrotron_fnc(mapType1,mapType1,lmax,**kwargs))**.5
     cl22 = np.abs(galaticDust_fnc(mapType2,mapType2,lmax,**kwargs))**.5
     return correlationCoef*cl11*cl22
 
-
 def gauss_beam(ell,fwhm_arcmin):
     tht_fwhm = np.deg2rad(fwhm_arcmin / 60.)
     return np.exp(-(tht_fwhm**2.)*(ell**2.) / (16.*np.log(2.)))
 
-
-
-
 class simple_sky_model:
     def __init__(self,camb_file='./CMB_fiducial_totalCls.dat',seed=1,pixRes_arcmin=4,lmax_sim=500):
-
-
-
         cls_camb = np.loadtxt(camb_file,unpack=True)
         cl_tt = cls_camb[1]/(cls_camb[0]*(cls_camb[0]+1)/2/np.pi)
         cl_tt = np.append([0,0],cl_tt)
@@ -134,8 +110,6 @@ class simple_sky_model:
         galShape = 1/(np.abs(opos[0])+1e-1)
         galShape/=np.mean(galShape**2)**.5
 
-
-
         np.random.seed(seed)
         self.shape = shape
         self.wcs = wcs
@@ -152,7 +126,6 @@ class simple_sky_model:
 
         self.alm_sync_T,self.alm_dust_T = curvedsky.rand_alm(ps,lmax=lmax_sim)
 
-    
         tmp_empty = enmap.empty(shape,wcs)
         self.T_dust= curvedsky.alm2map(self.alm_dust_T,tmp_empty,spin=[0])
 
@@ -170,11 +143,7 @@ class simple_sky_model:
 
 
     def observe(self,freq_GHz,noise_ukarcmin=3.,beam_fwhm_arcmin=8.):
-
-
         #np.random.seed(213114124+int(freq_GHz))
-
-
         beam = gauss_beam(np.arange(self.lmax_sim+10),beam_fwhm_arcmin)#hp.gauss_beam(beam_fwhm_arcmin*(np.pi/60./180),lmax=3*self.nside)
         beam[beam==0] = np.inf
         beam = 1/beam
@@ -190,29 +159,17 @@ class simple_sky_model:
         return T_map
 
     def get_input_cmb_alms(self):
-        """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
-        """
-        return self.alm_cmb_T#
+        return self.alm_cmb_T
 
 
     def get_input_dust_alms(self):
-        """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
-        """
         return self.alm_dust_T
 
     def get_input_sync_alms(self):
-        """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
-        """
         return self.alm_sync_T
-
 
 class simple_sky_model_pol:
     def __init__(self,camb_file='./CMB_fiducial_totalCls.dat',seed=1,pixRes_arcmin=4,lmax_sim=500):
-
-
 
         cls_camb = np.loadtxt(camb_file,unpack=True)
         cl_tt = cls_camb[1]/(cls_camb[0]*(cls_camb[0]+1)/2/np.pi)
@@ -230,11 +187,9 @@ class simple_sky_model_pol:
 
         shape,wcs = enmap.fullsky_geometry(self.pixRes_arcmin,dims=(2,))
 
-
         opos = enmap.posmap(shape, wcs)
         galShape = 1/(np.abs(opos[0])+1e-1)
         galShape/=np.mean(galShape**2)**.5
-
 
         np.random.seed(seed)
         self.shape = shape
@@ -268,7 +223,6 @@ class simple_sky_model_pol:
         
         self.alm_dust_E,self.alm_dust_B = curvedsky.map2alm([self.Q_dust,self.U_dust],spin=[2],lmax=lmax_sim)
 
-
         tmp_empty = enmap.empty(shape,wcs)
         self.Q_sync,self.U_sync = curvedsky.alm2map(np.array([self.alm_sync_E,self.alm_sync_B]),tmp_empty,spin=[2])
 
@@ -279,11 +233,7 @@ class simple_sky_model_pol:
         self.alm_sync_E,self.alm_sync_B = curvedsky.map2alm([self.Q_sync,self.U_sync],spin=[2],lmax=lmax_sim)
 
     def observe(self,freq_GHz,noise_ukarcmin=3.,beam_fwhm_arcmin=8.):
-
-
         #np.random.seed(213114124+int(freq_GHz))
-
-
         beam = gauss_beam(np.arange(self.lmax_sim+10),beam_fwhm_arcmin)#hp.gauss_beam(beam_fwhm_arcmin*(np.pi/60./180),lmax=3*self.nside)
         beam[beam==0] = np.inf
         beam = 1/beam
@@ -306,23 +256,14 @@ class simple_sky_model_pol:
         return Q_map,U_map
 
     def get_input_cmb_alms(self):
-        """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
-        """
         return self.alm_cmb_E,self.alm_cmb_B
 
 
     def get_input_dust_alms(self):
-        """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
-        """
         return self.alm_dust_E,self.alm_dust_B
 
 
     def get_input_sync_alms(self):
-        """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
-        """
         return self.alm_sync_E,self.alm_sync_B
 
 class pysm_sky_model:
@@ -370,7 +311,7 @@ class pysm_sky_model:
         U_noise = np.sqrt(2)*noise_ukarcmin*(np.pi/180/60)*curvedsky.rand_map(shape, wcs, beam**2)
 
         sky = pysm3.Sky(nside=self.nside_pysm,preset_strings=["d1","s1"],output_unit="K_CMB")
-        # Get the map at the desired frequency:
+        # Entrega el mapa a la frecuencia deseada
         I,Q_foreground,U_foreground = sky.get_emission(freq_GHz*u.GHz)*1e6
 
         I,Q_foreground,U_foreground = reproject.enmap_from_healpix([I,Q_foreground,U_foreground], shape, wcs,
@@ -389,7 +330,6 @@ class pysm_sky_model:
 
     def get_true_alms(self):
         """
-        Get the exact realization of the CMB EE and BB present in the sky (sadly not directly accessible in reality)!
+        Entrega la realización exacta de CMB EE y BB presentes en el cielo (lamentablemente no directamente accesibles en la realidad).
         """
         return self.alm_cmb_E,self.alm_cmb_B
-
