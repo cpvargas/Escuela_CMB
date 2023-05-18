@@ -1,0 +1,28 @@
+# Palabras/conceptos importantes en inglés y español
+ACT                    Atacama Cosmology Telescope / Telescopio cosmologico de Atacama
+Auto spectra           Auto espectro (cuando usamos un solo mapa para calcular el espectro)
+CMB                    Cosmic Microwave Background / Fondo Cósmico de Radiación
+CMB Lensing            Lente de CMB (Efecto de lente gravitacional en el CMB)
+Cross-correlation      Correlación cruzada
+Cross spectra          Espectro cruzado (cuando usamos dos mapas para calcular el espectro)
+E/B mode               Descomposición en los modos E/B del CMB a traves de los parametros Q y U de Stokes
+Foreground             Primer Plano
+ILC                    Internal Linear Combination / Combinacion Lineal Interna
+kSZ                    Efecto Sunyaev-Zel'dovich cinemático
+Lensed CMB             CMB con lente / CMB lenseado
+Lensing                Efecto Lente (Efecto de lente gravitacional)
+Likelihood             Probabilidad (A veces traducido a Verosimilitud)
+Mapmaker               Algoritmo que crea mapas 
+Mapmaking              Creación de mapas
+Matched Filter         Filtro Adaptado (A veces se intercambia con Filtro Optimo)
+Maximum Likelihood     Máxima Probabilidad / Máxima Verosimilitud
+MCMC Method            Markov Chain Monte Carlo Method / Metodos Monte Carlo basados en cadenas de Markov
+Point Source           Fuente Puntual (fuente no resuelta)
+Power Spectrum         Espectro de Potencia
+Ringing                (Transliterado como anillado) es cuando una señal fuerte oscila al ser transformada
+RJ                     Rayleigh-Jeans
+SPT                    South Pole Telescope / Telescopio del polo sur
+SZ                     Sunyaev-Zel'dovich
+Stacking               Apilamiento (generalmente el proceso de promediar muchos submapas)
+tSZ                    Efecto Sunyaev-Zel'dovich termico 
+Unlensed CMB           CMB sin lente / CMB no lenseado
